@@ -1,8 +1,10 @@
 //=================================================
 const express = require("express");
 const path = require("path");
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const cTable = require('console.table');
+const welcome = require('./lib/welcome');
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -11,7 +13,7 @@ var connection = mysql.createConnection({
     // Your username
     user: "root",
     // Your password
-    password: "",
+    password: "Testing_1",
     database: "top_songsDB"
 });
 
@@ -25,8 +27,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 //=================================================
+welcome();
 
-// here is an inquirer template, reuse this
+
 function userPrompts() {
     return inquirer.prompt([
         {
@@ -79,6 +82,7 @@ async function employeeTeam() {
     };
 }
 employeeTeam();
+
 
 // Server is listening
 //=================================================
