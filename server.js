@@ -5,7 +5,7 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
 const welcome = require('./lib/welcome');
-const New = require('./lib/addNew');
+const Records = require('./lib/addNew');
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -43,7 +43,7 @@ function userPrompts() {
             message: "What would you like to add?",
             type: "list",
             choices: ["Add department(s)", "Add role(s)", "Add employee(s)"],
-            name: "add",
+            name: "create",
             when: function (answer) {
                 return answer.action === "Add new";
             }
@@ -66,48 +66,34 @@ function userPrompts() {
                 return answer.action === "Update roles";
             }
         },
-        {
-            message: "Are you done? Yes to end, no to start over.",
-            type: "list",
-            choices: ["Yes", "No"],
-            name: "restart",
-            validate: function validateRestart(name) {
-                return name !== '';
-            },
-        },
+        // {
+        //     message: "Are you done? Yes to end, no to start over.",
+        //     type: "list",
+        //     choices: ["Yes", "No"],
+        //     name: "restart"
+        // },
     ])
 }
-
-async function addRecords() {
-    try {
-        const add = await userPrompts();
-
-        if (add.add === "Add department(s)") {
-
-        } 
-        if (add.add === "Add role(s)") {
-
-        }
-        if (add.add === "Add employee(s)") {
-
-        }  
-    }
-    catch (err) {
-        console.log(err);
-    };
-}
-addRecords();
 
 // here is a template calling inquirer, async and if, reuse
 async function employeeTeam() {
     try {
         const userInput = await userPrompts();
 
-        if (userInput.restart === "No") {
-            console.log(welcome);
-            await employeeTeam();
-            return;
-        };
+        // if (userInput.create === "Add department(s)") {
+        //     return new Records(addDepartment());
+        // } 
+
+        // if (userInput.action === "Add new") {
+        //     console.log("test add new")
+        //     return addRecords();
+        // }
+
+        // if (userInput.restart === "No") {
+        //     console.log(welcome);
+        //     await employeeTeam();
+        //     return;
+        // };
         console.log("\n================= Have a nice day! ==================");
     }
     catch (err) {
@@ -115,6 +101,25 @@ async function employeeTeam() {
     };
 }
 employeeTeam();
+
+
+// async function addRecords() {
+//     try {
+        
+//         if (userInput.create === "Add department(s)") {
+//             add.addDepartment();
+//         } 
+//         if (userInput.create === "Add role(s)") {
+
+//         }
+//         if (userInput.create === "Add employee(s)") {
+
+//         }  
+//     }
+//     catch (err) {
+//         console.log(err);
+//     };
+// }
 
 
 // Server is listening
