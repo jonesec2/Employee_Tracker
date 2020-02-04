@@ -5,6 +5,7 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
 const welcome = require('./lib/welcome');
+const New = require('./lib/addNew');
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -33,24 +34,40 @@ welcome();
 function userPrompts() {
     return inquirer.prompt([
         {
-            message: "What is the employee's role?",
+            message: "What would you like to do?",
             type: "list",
-            choices: ["Manager", "Engineer", "Intern"],
-            name: "role"
+            choices: ["Add new", "View existing", "Update roles"],
+            name: "action"
         },
         {
-            message: "What is the Manager's Office Number?",
-            type: "string",
-            name: "officeNumber",
-            validate: function validateNumber(officeNumber) {
-                return officeNumber !== '';
-            },
+            message: "What would you like to add?",
+            type: "list",
+            choices: ["Add department(s)", "Add role(s)", "Add employee(s)"],
+            name: "add",
             when: function (answer) {
-                return answer.role === "Manager";
+                return answer.action === "Add new";
             }
         },
         {
-            message: "If you need to add more members, select Yes. Otherwise select No and we'll generate your team profile.",
+            message: "What would you like to view?",
+            type: "list",
+            choices: ["View departments", "View roles", "View employees"],
+            name: "view",
+            when: function (answer) {
+                return answer.action === "View existing";
+            }
+        },
+        {
+            message: "Decide who you will update",
+            type: "list",
+            choices: ["-", "-", "-"],
+            name: "update",
+            when: function (answer) {
+                return answer.action === "Update roles";
+            }
+        },
+        {
+            message: "Are you done? Yes to end, no to start over.",
             type: "list",
             choices: ["Yes", "No"],
             name: "restart",
@@ -61,24 +78,40 @@ function userPrompts() {
     ])
 }
 
+async function addRecords() {
+    try {
+        const add = await userPrompts();
+
+        if (add.add === "Add department(s)") {
+
+        } 
+        if (add.add === "Add role(s)") {
+
+        }
+        if (add.add === "Add employee(s)") {
+
+        }  
+    }
+    catch (err) {
+        console.log(err);
+    };
+}
+addRecords();
 
 // here is a template calling inquirer, async and if, reuse
 async function employeeTeam() {
     try {
         const userInput = await userPrompts();
 
-        teamMembies.push(roleResolver(userInput));
-
-        if (userInput.restart === "Yes") {
-            console.log("Member Added")
+        if (userInput.restart === "No") {
+            console.log(welcome);
             await employeeTeam();
             return;
         };
-        console.log("Gathering your team!");
-
+        console.log("\n================= Have a nice day! ==================");
     }
     catch (err) {
-        console.log(err);
+        // // console.log(err);
     };
 }
 employeeTeam();
