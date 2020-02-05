@@ -8,122 +8,182 @@ const welcome = require('./lib/welcome');
 const Records = require('./lib/addNew');
 
 var connection = mysql.createConnection({
-    host: "localhost",
-    // Your port; if not 3306
-    port: 3306,
-    // Your username
-    user: "root",
-    // Your password
-    password: "Testing_1",
-    database: "top_songsDB"
+   host: "localhost",
+   // Your port; if not 3306
+   port: 3306,
+   // Your username
+   user: "root",
+   // Your password
+   password: "Freaky1zepp!",
+   database: "employeedb"
 });
 
 
 //=================================================
-const app = express();
-const PORT = process.env.PORT || 3000;
+// const app = express();
+// const PORT = process.env.PORT || 3000;
+
+// //=================================================
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
 
 //=================================================
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+connection.connect(function (err) {
+   if (err) {
+      console.error("error connecting: " + err.stack);
+      return;
+   }
+   console.log("connected as id " + connection.threadId);
+});
 
-//=================================================
 welcome();
 
+userPrompts();
 
 function userPrompts() {
-    return inquirer.prompt([
-        {
-            message: "What would you like to do?",
-            type: "list",
-            choices: ["Add new", "View existing", "Update roles"],
-            name: "action"
-        },
-        {
-            message: "What would you like to add?",
-            type: "list",
-            choices: ["Add department(s)", "Add role(s)", "Add employee(s)"],
-            name: "create",
-            when: function (answer) {
-                return answer.action === "Add new";
-            }
-        },
-        {
-            message: "What would you like to view?",
-            type: "list",
-            choices: ["View departments", "View roles", "View employees"],
-            name: "view",
-            when: function (answer) {
-                return answer.action === "View existing";
-            }
-        },
-        {
-            message: "Decide who you will update",
-            type: "list",
-            choices: ["-", "-", "-"],
-            name: "update",
-            when: function (answer) {
-                return answer.action === "Update roles";
-            }
-        },
-        // {
-        //     message: "Are you done? Yes to end, no to start over.",
-        //     type: "list",
-        //     choices: ["Yes", "No"],
-        //     name: "restart"
-        // },
-    ])
+   inquirer.prompt([
+      {
+         message: "What would you like to do?",
+         type: "list",
+         choices: ["Add new", "View existing", "Update roles"],
+         name: "action"
+      },
+   ])
+      .then(answer => {
+         switch (answer.action) {
+            case "Add new":
+               addRecord();
+               break;
+
+            case "View existing":
+               viewRecord();
+               break;
+
+            case "Update roles":
+               updateRecord();
+               break;
+         }
+      });
 }
 
-// here is a template calling inquirer, async and if, reuse
-async function employeeTeam() {
-    try {
-        const userInput = await userPrompts();
 
-        // if (userInput.create === "Add department(s)") {
-        //     return new Records(addDepartment());
-        // } 
+function addRecord() {
+   return inquirer.prompt([
+      {
+         message: "What would you like to add?",
+         type: "list",
+         choices: ["Add department(s)", "Add role(s)", "Add employee(s)"],
+         name: "create"
+      }
+   ])
+      .then(function (answer) {
 
-        // if (userInput.action === "Add new") {
-        //     console.log("test add new")
-        //     return addRecords();
-        // }
+         switch (answer.create) {
+            case "Add department(s)":
+               addDepartment();
+               break
 
-        // if (userInput.restart === "No") {
-        //     console.log(welcome);
-        //     await employeeTeam();
-        //     return;
-        // };
-        console.log("\n================= Have a nice day! ==================");
-    }
-    catch (err) {
-        // // console.log(err);
-    };
+            case "Add role(s)":
+               addRole();
+               break
+
+            case "Add employee(s)":
+               addEmployee();
+               break
+         }
+      })
 }
-employeeTeam();
 
+function addDepartment() {
+   return inquirer.prompt(
+      {
+         message: "Enter name of new department:",
+         type: "input",
+         name: "department"
+      }
+   )
+      .then(function (answer) {
+         console.log('test')
+         connection.query("INSERT INTO department VALUES ( ? )", [answer.department], (err, res) => {
+            if (err) throw err;
 
-// async function addRecords() {
-//     try {
-        
-//         if (userInput.create === "Add department(s)") {
-//             add.addDepartment();
-//         } 
-//         if (userInput.create === "Add role(s)") {
+            console.log("Successfully added new department: " + res.name + "\n With department id: " + res.departmentID)
 
-//         }
-//         if (userInput.create === "Add employee(s)") {
+         });
+         userPrompts();
+      });
+}
 
-//         }  
-//     }
-//     catch (err) {
-//         console.log(err);
-//     };
-// }
+function addRole() {
+   return inquirer.prompt([
+      {
+         message: "Enter name of new title:",
+         type: "input",
+         name: "roleTitle"
+      },
+      {
+         message: "Enter number amount of new title salary:",
+         type: "input",
+         name: "roleSalary"
+      },
+      {
+         message: "Enter department id of new role:",
+         type: "input",
+         name: "roleDepartment",
+         // how to validate FK with only valid department id's
+         validate: function validateDepartment(departmentID) {
+            return departmentID !== '';
+         }
+      }
+   ])
+      .then(function (answer) {
+         connection.query("INSERT INTO role VALUES ( ?, ?, ? )", [answer.roleTitle, answer.roleSalary, answer.roleDepartment], function (err, res) {
+            if (err) throw err;
+
+            console.log("Successfully added new role: " + res.title + "\n With user id: " + res.roleID + "\n With salary: " + res.salary + "\n In department: " + res.departmentID)
+
+         });
+         userPrompts();
+      });
+}
+
+function addEmployee() {
+   return inquirer.prompt([
+      {
+         message: "Enter first name of new employee:",
+         type: "input",
+         name: "employeeFirst"
+      },
+      {
+         message: "Enter last name of new employee:",
+         type: "input",
+         name: "employeeLast"
+      },
+      {
+         message: "Enter role of new employee:",
+         type: "input",
+         name: "employeeRole"
+      },
+      {
+         message: "Enter manager of new employee (if they have one. If not, blank is acceptable):",
+         type: "input",
+         name: "employeeManager"
+      }
+   ])
+      .then(function (answer) {
+         connection.query("INSERT INTO role VALUES ( ?, ?, ?, ? )", [answer.employeeFirst, answer.employeeLast, answer.employeeRole, answer.employeeManager], function (err, res) {
+            if (err) throw err;
+
+            console.log("Successfully added new employee: " + res.first_name + res.last_name + "\n" + "\n With role: " + res.roleID + "\n With manager id: " + res.managerid)
+
+         });
+         userPrompts();
+      });
+}
 
 
 // Server is listening
 //=================================================
-app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT);
-});
+// app.listen(PORT, function () {
+//    console.log("App listening on PORT " + PORT);
+// });
