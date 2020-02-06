@@ -111,39 +111,70 @@ function addDepartment() {
       });
 }
 
-// function addRole() {
-//    return inquirer.prompt([
-//       {
-//          message: "Enter name of new title:",
-//          type: "input",
-//          name: "roleTitle"
-//       },
-//       {
-//          message: "Enter number amount of new title salary:",
-//          type: "input",
-//          name: "roleSalary"
-//       },
-//       {
-//          message: "Enter department id of new role:",
-//          type: "input",
-//          name: "roleDepartment",
-//          // how to validate FK with only valid department id's
-//          validate: function validateDepartment(departmentID) {
-//             return departmentID !== '';
-//          }
-//       }
-//    ])
-//       .then(function (answer) {
-//          connection.query("INSERT INTO role VALUES ( ?, ?, ? )", [answer.roleTitle, answer.roleSalary, answer.roleDepartment], function (err, res) {
-//             if (err) throw err;
+// code that validates the FK constraint
+const validateDecimal = async (input) => {
+   if (input !== "" || input !== "") {
+      return 'Insert correct value';
+   }
+   return true
+};
 
-//             console.log("Successfully added new role: " + res.title + "\n With user id: " + res.roleID + "\n With salary: " + res.salary + "\n In department: " + res.departmentID)
+const validateDepartment = async (input) => {
+   const department = connection.query("Select * from department", function(err, res) {
+      // code that will grab all of department info
+      // code that will loop over and check if input matches one of the department_id's
+   });
+   if (input !== department) {
+      return 'This is not a valid department id';
+   }
+   return true
+}
 
-//          });
-//          userPrompts();
-//       });
-// }
+const validateString = async (input) => {
+   if (input === '') {
+      return "Value can't be null"
+   }
+   return true
+}
 
+
+function addRole() {
+   return inquirer.prompt([
+      {
+         message: "Enter name of new title:",
+         type: "input",
+         name: "roleTitle",
+         validate: validateString
+      },
+      {
+         message: "Enter number amount of new title salary:",
+         type: "input",
+         name: "roleSalary",
+         validate: validateDecimal
+      },
+      {
+         message: "Enter department id of new role:",
+         type: "input",
+         name: "roleDepartment",
+         validate: validateDepartment
+      }
+   ])
+      .then(function (answer) {
+         const title = JSON.stringify(answer.roleTitle)
+         const salary = JSON.stringify(answer.roleSalary)
+         const department = JSON.stringify(answer.roleDepartment)
+
+         connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
+            if (err) throw err;
+
+            console.log("Successfully added new role: " + title + "\n With salary: " + salary + "\n In department: " + department)
+
+         });
+         userPrompts();
+      });
+}
+
+////////////////////////////////////////
 // function addEmployee() {
 //    return inquirer.prompt([
 //       {
