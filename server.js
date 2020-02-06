@@ -99,9 +99,7 @@ function addDepartment() {
       }
    )
       .then(function (answer) {
-         const name = JSON.stringify(answer.department)
-         console.log(name)
-
+         const name = answer.department
          connection.query("INSERT INTO department (name) VALUES ( ? )", name, (err, res) => {
             if (err) throw err;
 
@@ -113,9 +111,12 @@ function addDepartment() {
 
 // code that validates the FK constraint
 const validateDecimal = async (input) => {
-   if (input !== "" || input !== "") {
-      return 'Insert correct value';
+   if (input === /^[a-zA-Z]/ || input === "") {
+      return 'Insert valid numerical value';
    }
+   // if (Number.isInteger(input)) {
+
+   // }
    return true
 };
 
@@ -124,9 +125,9 @@ const validateDepartment = async (input) => {
       // code that will grab all of department info
       // code that will loop over and check if input matches one of the department_id's
    });
-   if (input !== department) {
-      return 'This is not a valid department id';
-   }
+   // if (input !== department) {
+   //    return 'This is not a valid department id';
+   // }
    return true
 }
 
@@ -160,19 +161,20 @@ function addRole() {
       }
    ])
       .then(function (answer) {
-         const title = JSON.stringify(answer.roleTitle)
-         const salary = JSON.stringify(answer.roleSalary)
-         const department = JSON.stringify(answer.roleDepartment)
+         const title = answer.roleTitle
+         const salary = answer.roleSalary
+         const department = answer.roleDepartment
+         console.log(title +"\n" + salary +"\n" + department )
 
          connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
             if (err) throw err;
 
-            console.log("Successfully added new role: " + title + "\n With salary: " + salary + "\n In department: " + department)
-
+            console.log("Successfully added new role: " + title + "\nWith salary: " + salary + "\nIn department: " + department)
+            userPrompts();
          });
-         userPrompts();
       });
 }
+
 
 ////////////////////////////////////////
 // function addEmployee() {
