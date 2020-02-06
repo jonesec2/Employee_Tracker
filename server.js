@@ -176,37 +176,42 @@ function addRole() {
 }
 
 
+
 ////////////////////////////////////////
-// function addEmployee() {
-//    return inquirer.prompt([
-//       {
-//          message: "Enter first name of new employee:",
-//          type: "input",
-//          name: "employeeFirst"
-//       },
-//       {
-//          message: "Enter last name of new employee:",
-//          type: "input",
-//          name: "employeeLast"
-//       },
-//       {
-//          message: "Enter role of new employee:",
-//          type: "input",
-//          name: "employeeRole"
-//       },
-//       {
-//          message: "Enter manager of new employee (if they have one. If not, blank is acceptable):",
-//          type: "input",
-//          name: "employeeManager"
-//       }
-//    ])
-//       .then(function (answer) {
-//          connection.query("INSERT INTO role VALUES ( ?, ?, ?, ? )", [answer.employeeFirst, answer.employeeLast, answer.employeeRole, answer.employeeManager], function (err, res) {
-//             if (err) throw err;
+function addEmployee() {
+   return inquirer.prompt([
+      {
+         message: "Enter first name of new employee:",
+         type: "input",
+         name: "employeeFirst"
+      },
+      {
+         message: "Enter last name of new employee:",
+         type: "input",
+         name: "employeeLast"
+      },
+      {
+         message: "Enter role of new employee:",
+         type: "input",
+         name: "employeeRole"
+      },
+      {
+         message: "Enter manager of new employee (if they have one. If not, blank is acceptable):",
+         type: "input",
+         name: "employeeManager"
+      }
+   ])
+   .then(function (answer) {
+      const first_name = answer.employeeFirst
+      const last_name = answer.employeeLast
+      const role_id = answer.employeeRole
+      const manager = answer.employeeManager
 
-//             console.log("Successfully added new employee: " + res.first_name + res.last_name + "\n" + "\n With role: " + res.roleID + "\n With manager id: " + res.managerid)
+      connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ? )", [first_name, last_name, role_id, manager], function (err, res) {
+         if (err) throw err;
 
-//          });
-//          userPrompts();
-//       });
-// }
+         console.log("Successfully added new employee: " + first_name + " " + last_name + "\nWith role id: " + role_id + " and manager id " + manager_id)
+         userPrompts();
+      });
+   });
+}
