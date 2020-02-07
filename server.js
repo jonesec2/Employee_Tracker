@@ -14,8 +14,8 @@ var connection = mysql.createConnection({
    // Your username
    user: "root",
    // Your password
-   password: "Testing_1",
-   database: "employee_db"
+   password: "Freaky1zepp!",
+   database: "employeedb"
 });
 
 
@@ -121,9 +121,8 @@ const validateDecimal = async (input) => {
 };
 
 const validateDepartment = async (input) => {
-   const department = connection.query("Select * from department", function(err, res) {
-      // code that will grab all of department info
-      // code that will loop over and check if input matches one of the department_id's
+   const department = connection.query("Select * from department where department_id = ?", input, function(err, res) {
+      console.log(res)
    });
    // if (input !== department) {
    //    return 'This is not a valid department id';
