@@ -57,8 +57,8 @@ function userPrompts() {
                endProgram();
                break;
          }
-
       });
+
 }
 
 
@@ -120,28 +120,35 @@ const validateDecimal = async (input) => {
    return true
 };
 
+const response = []
+const newArray = []
+async function getDepartmentKey() {
+   try {
+      await userPrompts();
+      console.log("hey")
+      connection.query("Select * from department", function (err, res) {
+         for (var i = 0; i < res.length; i++) {
+            newArray.push(res[i].department_id)
+         }
+         let filteredID = newArray.filter(e => e == input);
+         console.log(newArray)
+         console.log(filteredID[0])
+         response.push(filteredID[0])
+      });
+   }
+   catch (err) {
+      console.log(err);
+   }
+}
+
 const validateDepartment = async (input) => {
    if (input === "") {
       return 'Insert valid Department ID';
    }
-   connection.query("Select * from department", function (err, res) {
-      let newArray = []
-      for (var i = 0; i < res.length; i++) {
-         newArray.push(res[i].department_id)
-      }
-      let filteredID = newArray.filter(e => e == input)
-      console.log(input)
-      console.log(newArray)
-      console.log(filteredID)
-      console.log(filteredID[0])
-      
-      if (filteredID[0] === undefined) {
-         return "Department ID not found"
-      }
-      else {
-         return true
-      }
-   });
+   if (response[0] !== input) {
+      return "Department ID not found"
+   }
+   return true
 }
 
 const validateString = async (input) => {
@@ -177,7 +184,7 @@ function addRole() {
          const title = answer.roleTitle
          const salary = answer.roleSalary
          const department = answer.roleDepartment
-         console.log(title +"\n" + salary +"\n" + department )
+         console.log(title + "\n" + salary + "\n" + department)
 
          connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
             if (err) throw err;
@@ -214,17 +221,17 @@ function addEmployee() {
          name: "employeeManager"
       }
    ])
-   .then(function (answer) {
-      const first_name = answer.employeeFirst
-      const last_name = answer.employeeLast
-      const role_id = answer.employeeRole
-      const manager = answer.employeeManager
+      .then(function (answer) {
+         const first_name = answer.employeeFirst
+         const last_name = answer.employeeLast
+         const role_id = answer.employeeRole
+         const manager = answer.employeeManager
 
-      connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ? )", [first_name, last_name, role_id, manager], function (err, res) {
-         if (err) throw err;
+         connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ? )", [first_name, last_name, role_id, manager], function (err, res) {
+            if (err) throw err;
 
-         console.log("Successfully added new employee: " + first_name + " " + last_name + "\nWith role id: " + role_id + " and manager id " + manager_id)
-         userPrompts();
+            console.log("Successfully added new employee: " + first_name + " " + last_name + "\nWith role id: " + role_id + " and manager id " + manager_id)
+            userPrompts();
+         });
       });
-   });
 }
