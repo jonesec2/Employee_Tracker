@@ -239,3 +239,49 @@ function addEmployee() {
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+function viewRecord() {
+   return inquirer.prompt([
+      {
+         message: "What would you like to view?",
+         type: "list",
+         choices: ["View department(s)", "View role(s)", "View employee(s)"],
+         name: "create"
+      }
+   ])
+      .then(function (answer) {
+
+         switch (answer.create) {
+            case "View department(s)":
+               viewDepartment();
+               break
+
+            case "View role(s)":
+               viewRole();
+               break
+
+            case "View employee(s)":
+               viewEmployee();
+               break
+         }
+      })
+}
+
+function viewDepartment() {
+   return inquirer.prompt(
+      {
+         message: "Enter name of new department:",
+         type: "input",
+         name: "department"
+      }
+   )
+      .then(function (answer) {
+         const name = answer.department
+         connection.query("INSERT INTO department (name) VALUES ( ? )", name, (err, res) => {
+            if (err) throw err;
+
+            console.log("Successfully added new department: " + name);
+            userPrompts();
+         });
+      });
+}
