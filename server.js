@@ -268,20 +268,11 @@ function viewRecord() {
 }
 
 function viewDepartment() {
-   return inquirer.prompt(
-      {
-         message: "Enter name of new department:",
-         type: "input",
-         name: "department"
-      }
-   )
-      .then(function (answer) {
-         const name = answer.department
-         connection.query("INSERT INTO department (name) VALUES ( ? )", name, (err, res) => {
-            if (err) throw err;
 
-            console.log("Successfully added new department: " + name);
-            userPrompts();
-         });
-      });
+   connection.query("Select * From department", (err, res) => {
+      if (err) throw err;
+
+      console.table(res)
+      userPrompts();
+   });
 }
