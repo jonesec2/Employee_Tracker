@@ -33,7 +33,7 @@ function userPrompts() {
       {
          message: "What would you like to do?",
          type: "list",
-         choices: ["Add new", "View existing", "Update roles", "End program"],
+         choices: ["Add new", "View existing", "Update employees roles", "End program"],
          name: "action"
       },
    ])
@@ -47,7 +47,7 @@ function userPrompts() {
                viewRecord();
                break;
 
-            case "Update roles":
+            case "Update employees roles":
                updateRecord();
                break;
 
@@ -275,4 +275,87 @@ function viewDepartment() {
       console.table(res)
       userPrompts();
    });
+}
+
+function viewRole() {
+
+   connection.query("Select * From role", (err, res) => {
+      if (err) throw err;
+
+      console.table(res)
+      userPrompts();
+   });
+}
+
+function viewEmployee() {
+
+   connection.query("Select * From employee", (err, res) => {
+      if (err) throw err;
+
+      console.table(res)
+      userPrompts();
+   });
+}
+
+function updateRecord() {
+   connection.query("Select * From employee", (err, res) => {
+      if (err) throw err;
+
+      console.table(res)
+   });
+   inquirer.prompt([
+      {
+         message: "The employee list is displayed. Ready to edit?",
+         type: "list",
+         choices: ["OK"],
+         name: "action"
+      },
+      {
+         message: "Enter employee_id of employee you are editing: ",
+         type: "input",
+         name: "employee_id",
+         validate: validateString
+      },
+      {
+         message: "Updated first name is: ",
+         type: "input",
+         name: "first_name",
+         validate: validateString
+      },
+      {
+         message: "Updated last name is: ",
+         type: "input",
+         name: "last_name",
+         validate: validateDepartment
+      },
+      {
+         message: "Updated role_id is: ",
+         type: "input",
+         name: "role_id",
+         validate: validateDepartment
+      },
+      {
+         message: "Updated manager_id is: ",
+         type: "input",
+         name: "manager_id",
+         validate: validateDepartment
+      }
+   ])
+      .then(function (answer) {
+         const id = answer.employee_id;
+         const first = answer.first_name;
+         const last = answer.last_name;
+         const role = answer.role_id;
+         const manager = answer.manager_id;
+         
+         connection.query("Update employee set first_name = ?, last_name = ?, role_id = ?, manager_id = ? where employee_id = ?", 
+         [first, last, role, manager, id], function (err, res) {
+            if (err) throw err;
+
+            console.log("Successfully update employee with id " + id)
+            userPrompts();
+         })
+
+      });
+
 }
