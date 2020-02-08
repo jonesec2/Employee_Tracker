@@ -26,24 +26,48 @@ connection.connect(function (err) {
    }
 });
 
-const input = 7
-connection.query("Select * from department", function (err, res) {
-   // console.log(res[0].department_id)
-   if (err) {
-      return res.status(500).end();
+// const input = 4
+// connection.query("Select * from department", function (err, res) {
+//    // console.log(res[0].department_id)
+//    if (err) {
+//       return res.status(500).end();
+//    }
+//    let newArray = []
+//    for (var i = 0; i < res.length; i++) {
+//       newArray.push(res[i].department_id)
+//    }
+//    console.log(newArray)
+//    console.log(input)
+//    let filteredID = newArray.filter(function (e) {
+//       return e === input
+//    })
+//    console.log(filteredID[0]);
+//    if (filteredID[0] === undefined) {
+//       return console.log("Department ID not found")
+//    }
+//    return true
+// });
+const validateDepartment = async (input) => {
+   if (input === "") {
+      return console.log('Insert valid Department ID');
    }
-   let newArray = []
-   for (var i = 0; i < res.length; i++) {
-      newArray.push(res[i].department_id)
-   }
-   console.log(newArray)
-   console.log(input)
-   let filteredID = newArray.filter(function (e) {
-      return e === input
-   })
-   console.log(filteredID[0]);
-   if (filteredID[0] === undefined) {
-      return console.log("Department ID not found")
+   const response = []
+   const sql = connection.query("Select * from department", function (err, res) {
+      const newArray = []
+      for (var i = 0; i < res.length; i++) {
+         newArray.push(res[i].department_id)
+      }
+      let filteredID = newArray.filter(e => e == input);
+      console.log(newArray)
+      console.log(filteredID[0])
+      response.push(filteredID[0])
+   });
+   console.log(response)
+   let value = await sql
+   console.log(value)
+   if (response[0] !== input) {
+      return console.log("Department ID not found");
    }
    return true
-});
+}
+validateDepartment(4);
