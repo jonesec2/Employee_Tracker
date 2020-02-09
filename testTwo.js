@@ -13,7 +13,7 @@ var connection = mysql.createConnection({
    // Your username
    user: "root",
    // Your password
-   password: "Freaky1zepp!",
+   password: "Testing_1",
    database: "employee_db"
 });
 
@@ -78,25 +78,31 @@ function addRole() {
             message: "Enter department id of new role:",
             type: "input",
             name: "roleDepartment",
-            // validate: validateDepartment
+            validate: async function f(roleDepartment) {
+               console.log(newArray)
+               let filteredID = newArray.filter(e => e == roleDepartment);
+               console.log(JSON.stringify(filteredID[0]));
+               console.log(roleDepartment);
+               // console.log(newArray.indexOf(roleDepartment) > -1);
+               
+               if (roleDepartment == '') {
+                  return "Value cannot be empty"
+               }
+               if (roleDepartment !== JSON.stringify(filteredID[0])) {
+                  return "Department ID does not exist"
+               }
+               return true
+            }
          }
       ])
          .then(function (answer) {
             const title = answer.roleTitle
             const salary = answer.roleSalary
             const department = answer.roleDepartment
-            
-            const response = []
-            let filteredID = newArray.filter(e => e == department);
-            response.push(filteredID[0])
-            
-            console.log(newArray)
-            console.log(response)
-            if
-   
+
             connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
                if (err) throw err;
-   
+
                console.log("Successfully added new role: " + title + "\nWith salary: " + salary + "\nIn department: " + department)
                // userPrompts();
             });
