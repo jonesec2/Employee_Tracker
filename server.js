@@ -128,7 +128,7 @@ function addDepartment() {
 //add Role function handles Insert Into for Role table
 function addRole() {
 
-   // to handle async nature and validate department id we start with  thesql query
+   // to handle async nature and validate department id we start with  the sql query
    connection.query("Select * from department", function (err, res) {
       // we now loop over response to get valid Id's and push to array
       const newArray = []
@@ -190,45 +190,77 @@ function addRole() {
 }
 
 function addEmployee() {
-   return inquirer.prompt([
-      {
-         message: "Enter first name of new employee:",
-         type: "input",
-         name: "employeeFirst",
-         validate: validateString
-      },
-      {
-         message: "Enter last name of new employee:",
-         type: "input",
-         name: "employeeLast",
-         validate: validateString
-      },
-      {
-         message: "Enter Role ID of new employee:",
-         type: "input",
-         name: "employeeRole",
-         validate: validateDepartment
-      },
-      {
-         message: "Enter Manager ID of new employee (if they have one. If not, blank is acceptable):",
-         type: "input",
-         name: "employeeManager",
-         validate: validateDepartment
+
+   connection.query("Select * From employee", (err, res) => {
+      if (err) throw err;
+
+      const roleArray = []
+      for (var i = 0; i < res.length; i++) {
+         roleArray.push(res[i].role_id);
       }
-   ])
-      .then(function (answer) {
-         const first_name = answer.employeeFirst
-         const last_name = answer.employeeLast
-         const role_id = answer.employeeRole
-         const manager_id = answer.employeeManager
 
-         connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ? )", [first_name, last_name, role_id, manager_id], function (err, res) {
-            if (err) throw err;
+      return inquirer.prompt([
+         {
+            message: "Enter first name of new employee:",
+            type: "input",
+            name: "employeeFirst",
+            validate: validateString
+         },
+         {
+            message: "Enter last name of new employee:",
+            type: "input",
+            name: "employeeLast",
+            validate: validateString
+         },
+         {
+            message: "Enter Role ID of new employee:",
+            type: "input",
+            name: "employeeRole",
+            validate: async function f(roleId) {
 
-            console.log("Successfully added new employee: " + first_name + " " + last_name + "\nWith role id: " + role_id + " and manager id " + manager_id)
-            userPrompts();
+               let filteredID = roleArray.filter(e => e == roleId);
+
+               if (roleId == '') {
+                  return "Value cannot be empty"
+               }
+               if (roleId !== JSON.stringify(filteredID[0])) {
+                  return "Role ID does not exist"
+               }
+               return true
+            }
+         },
+         {
+            message: "Enter Manager ID of new employee (if they have one. If not, blank is acceptable):",
+            type: "input",
+            name: "employeeManager",
+            validate: async function f(managerId) {
+
+               let filteredID = roleArray.filter(e => e == managerId);
+
+               if (managerId == '') {
+                  return "Value cannot be empty"
+               }
+               if (managerId !== JSON.stringify(filteredID[0])) {
+                  return "Role ID does not exist"
+               }
+               return true
+            }
+         }
+      ])
+         .then(function (answer) {
+            const first_name = answer.employeeFirst
+            const last_name = answer.employeeLast
+            const role_id = answer.employeeRole
+            const manager_id = answer.employeeManager
+
+            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ? )", [first_name, last_name, role_id, manager_id], function (err, res) {
+               if (err) throw err;
+
+               console.log("Successfully added new employee: " + first_name + " " + last_name + "\nWith role id: " + role_id + " and manager id " + manager_id)
+               userPrompts();
+            });
          });
-      });
+   });
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -291,7 +323,7 @@ function viewEmployee() {
 }
 
 function departmentBudget() {
-   connection.query("Select * From employee", (err, res) => {
+   connection.query("Select a.name, sum(b.salary) as Total_cost From department a Inner Join role b on a.department_id = b.department_id Inner Join employee c on b.role_id = c.role_id Group By a.name;", (err, res) => {
       if (err) throw err;
 
       console.table(res)
