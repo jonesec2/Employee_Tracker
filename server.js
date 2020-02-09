@@ -27,6 +27,7 @@ connection.connect(function (err) {
    userPrompts();
 });
 
+// main hub for all questions, all other queries at end bring user back to this function
 function userPrompts() {
    inquirer.prompt([
       {
@@ -60,6 +61,7 @@ function userPrompts() {
 
 
 ///////////////////////////////////////////////////////////////////////
+// Create section
 function addRecord() {
    return inquirer.prompt([
       {
@@ -87,7 +89,8 @@ function addRecord() {
       })
 }
 
-// Validations
+///////////////////////////////////////////////////////////////////////
+// Reused validations
 const validateDecimal = async (input) => {
    if (input === /^[a-zA-Z]/ || input === "") {
       return 'Insert valid numerical value';
@@ -103,8 +106,6 @@ const validateString = async (input) => {
    return true
 }
 
-///////////////////////////////////////////////////////////////////////
-// Create section
 function addDepartment() {
    return inquirer.prompt(
       {
@@ -124,15 +125,17 @@ function addDepartment() {
       });
 }
 
+//add Role function handles Insert Into for Role table
 function addRole() {
 
+   // to handle async nature and validate department id we start with  thesql query
    connection.query("Select * from department", function (err, res) {
-      // const response = []
+      // we now loop over response to get valid Id's and push to array
       const newArray = []
       for (var i = 0; i < res.length; i++) {
          newArray.push(res[i].department_id)
       }
-      console.log(newArray);
+      // now we start the prompts
       inquirer.prompt([
          {
             message: "Enter name of new title:",
@@ -150,6 +153,7 @@ function addRole() {
             message: "Enter department id of new role:",
             type: "input",
             name: "roleDepartment",
+            // to validate we check the input the user gives us against the values we got earlier
             validate: async function f(roleDepartment) {
                console.log(newArray)
                let filteredID = newArray.filter(e => e == roleDepartment);
@@ -167,16 +171,18 @@ function addRole() {
             }
          }
       ])
+         // all validations pass, now we can make take inquirer results and make sql query
          .then(function (answer) {
             const title = answer.roleTitle
             const salary = answer.roleSalary
             const department = answer.roleDepartment
 
+            // sql query to create new record
             connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
                if (err) throw err;
 
                console.log("Successfully added new role: " + title + "\nWith salary: " + salary + "\nIn department: " + department)
-               // userPrompts();
+               userPrompts();
             });
          });
    });
@@ -232,7 +238,7 @@ function viewRecord() {
       {
          message: "What would you like to view?",
          type: "list",
-         choices: ["View department(s)", "View role(s)", "View employee(s)"],
+         choices: ["View department(s)", "View role(s)", "View employee(s)", "View utilized budget of a department"],
          name: "create"
       }
    ])
@@ -250,12 +256,14 @@ function viewRecord() {
             case "View employee(s)":
                viewEmployee();
                break
+            case "View utilized budget of a department":
+               departmentBudget();
+               break
          }
       })
 }
 
 function viewDepartment() {
-
    connection.query("Select * From department", (err, res) => {
       if (err) throw err;
 
@@ -265,7 +273,6 @@ function viewDepartment() {
 }
 
 function viewRole() {
-
    connection.query("Select * From role", (err, res) => {
       if (err) throw err;
 
@@ -275,7 +282,15 @@ function viewRole() {
 }
 
 function viewEmployee() {
+   connection.query("Select * From employee", (err, res) => {
+      if (err) throw err;
 
+      console.table(res)
+      userPrompts();
+   });
+}
+
+function departmentBudget() {
    connection.query("Select * From employee", (err, res) => {
       if (err) throw err;
 
@@ -317,7 +332,7 @@ function updateRecord() {
             validate: async function f(employeeId) {
 
                let filteredID = employeeArray.filter(e => e == employeeId);
-               
+
                if (employeeId == '') {
                   return "Value cannot be empty"
                }
@@ -346,7 +361,7 @@ function updateRecord() {
             validate: async function f(roleId) {
 
                let filteredID = roleArray.filter(e => e == roleId);
-               
+
                if (roleId == '') {
                   return "Value cannot be empty"
                }
@@ -363,7 +378,7 @@ function updateRecord() {
             validate: async function f(roleId) {
 
                let filteredID = roleArray.filter(e => e == roleId);
-               
+
                if (roleId == '') {
                   return "Value cannot be empty"
                }
