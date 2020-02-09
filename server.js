@@ -1,7 +1,7 @@
 //=================================================
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const cTable = require('console.table');
+// const cTable = require('console.table');
 const welcome = require('./lib/welcome');
 const endProgram = require('./lib/endProgram');
 
@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
    // Your username
    user: "root",
    // Your password
-   password: "Testing_1",
+   password: "Freaky1zepp!",
    database: "employee_db"
 });
 
@@ -27,6 +27,7 @@ connection.connect(function (err) {
    userPrompts();
 });
 
+// emitter.setMaxListeners(100);
 
 function userPrompts() {
    inquirer.prompt([
@@ -118,6 +119,8 @@ const validateDecimal = async (input) => {
    return true
 };
 
+
+/// function first calls this sql query, then it does inquirer, within inquirer it calls next sql function
 // const response = []
 // const newArray = []
 // async function getDepartmentKey() {

@@ -13,7 +13,7 @@ var connection = mysql.createConnection({
    // Your username
    user: "root",
    // Your password
-   password: "Testing_1",
+   password: "Freaky1zepp!",
    database: "employee_db"
 });
 
@@ -47,27 +47,61 @@ connection.connect(function (err) {
 //    }
 //    return true
 // });
-const validateDepartment = async (input) => {
-   if (input === "") {
-      return console.log('Insert valid Department ID');
-   }
-   const response = []
-   const sql = connection.query("Select * from department", function (err, res) {
+// const validateDepartment = async (input) => {
+// if (input === "") {
+//    return console.log('Insert valid Department ID');
+// }
+
+function addRole() {
+
+   connection.query("Select * from department", function (err, res) {
+      // const response = []
       const newArray = []
       for (var i = 0; i < res.length; i++) {
          newArray.push(res[i].department_id)
       }
-      let filteredID = newArray.filter(e => e == input);
-      console.log(newArray)
-      console.log(filteredID[0])
-      response.push(filteredID[0])
+      console.log(newArray);
+      inquirer.prompt([
+         {
+            message: "Enter name of new title:",
+            type: "input",
+            name: "roleTitle",
+            // validate: validateString
+         },
+         {
+            message: "Enter number amount of new title salary:",
+            type: "input",
+            name: "roleSalary",
+            // validate: validateDecimal
+         },
+         {
+            message: "Enter department id of new role:",
+            type: "input",
+            name: "roleDepartment",
+            // validate: validateDepartment
+         }
+      ])
+         .then(function (answer) {
+            const title = answer.roleTitle
+            const salary = answer.roleSalary
+            const department = answer.roleDepartment
+            
+            const response = []
+            let filteredID = newArray.filter(e => e == department);
+            response.push(filteredID[0])
+            
+            console.log(newArray)
+            console.log(response)
+            if
+   
+            connection.query("INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ? )", [title, salary, department], function (err, res) {
+               if (err) throw err;
+   
+               console.log("Successfully added new role: " + title + "\nWith salary: " + salary + "\nIn department: " + department)
+               // userPrompts();
+            });
+         });
    });
-   console.log(response)
-   let value = await sql
-   console.log(value)
-   if (response[0] !== input) {
-      return console.log("Department ID not found");
-   }
-   return true
+
 }
-validateDepartment(4);
+addRole();
